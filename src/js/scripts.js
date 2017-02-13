@@ -6,6 +6,10 @@
 * started at 13/02/2017
 */
 
+let iTrombinoCurrentIndex = 0,
+	iTrombinoLength,
+	$trombinoFigures;
+
 const fHandleTabClick = function( oEvent ) {
 	oEvent.preventDefault();
 	const $target = oEvent.currentTarget;
@@ -18,6 +22,14 @@ const fHandleTabClick = function( oEvent ) {
 	$target.parentNode.classList.add( "active" );
 	document.querySelector( ".tab-content .tab-pane.active" ).classList.remove( "active" );
 	document.getElementById( $target.getAttribute( "data-tab-target" ) ).classList.add( "active" );
+};
+
+const fUpdateTrombino = function() {
+	$trombinoFigures[ iTrombinoCurrentIndex ].classList.add( "hide" );
+	if ( ++iTrombinoCurrentIndex === iTrombinoLength ) {
+		iTrombinoCurrentIndex = 0;
+	}
+	$trombinoFigures[ iTrombinoCurrentIndex ].classList.remove( "hide" );
 };
 
 // When page loads...
@@ -33,4 +45,11 @@ window.addEventListener( "load", function() {
 		$elt.addEventListener( "click", fHandleTabClick );
 	});
 
+	// 3. trombino
+	document.querySelectorAll( "#trombino figure:not(:first-of-type)" ).forEach( function( $elt ) {
+		$elt.classList.add( "hide" );
+	} );
+	$trombinoFigures = Array.from( document.querySelectorAll( "#trombino figure" ) );
+	iTrombinoLength = $trombinoFigures.length;
+	setInterval( fUpdateTrombino, 1000 );
 } );
