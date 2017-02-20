@@ -40,45 +40,44 @@ const fHandleTrombino = function() {
 	} );	
 };
 
-const fHandleFormValidation = function( oEvent ) {
-	let bHasErrors = false,
-		sEmail,
-		sName,
-		sComment;
-	// 1. check email
-	sEmail = ( $emailInput.val() || "" ).trim();
-	if( !rEmailValidation.test(sEmail) ){
-		console.error( "Email isn't valid!" );
-		bHasErrors = true;
-	}else{
-		console.info( "Email is valid!" );
-	}
-
-	// 2. check name
-	sName = ( $nameInput.val() || "" ).trim ();
-	if( sName.length < 4 ) {
-		console.error( "Name isn't valid!" );
-		bHasErrors = true;
-	}else{
-		console.info( "Name is valid!" );
-	}
-
-	// 3. check comment
-	sComment = ( $commentTextarea.val() || "" ).trim ();
-	if( sComment.length < 10 || sComment.length > 140 ) {
-		console.error( "Comment isn't valid!" );
-		bHasErrors = true;
-	}else{
-		console.info( "Comment is valid!" );
-	}
-
-	if( bHasErrors ) {
-		window.alert( "Veuillez remplir tous les champs de formulaire!" )
-		return false; // évènement ne continue pas ( form non validé )
-	}
-
-	return true; 
+const fCheckEmail = function() {
+	let sEmail = ( $emailInput.val() || "" ).trim(),
+		bIsValid = rEmailValidation.test( sEmail );
+	
+	$emailInput.parents( ".control-group" ).toggleClass( "error", !bIsValid );
+	return bIsValid;
 };
+const fCheckName = function() {
+	let sName = ( $nameInput.val() || "" ).trim(),
+		bIsValid = sName.length > 4;
+	
+	$nameInput.parents( ".control-group" ).toggleClass( "error", !bIsValid );
+	return bIsValid;
+};
+const fCheckComment = function() {
+	let sComment = ( $commentTextarea.val() || "" ).trim(),
+		bIsValid = sComment.length > 10 && sComment.length < 140;
+	
+	$commentTextarea.parents( ".control-group" ).toggleClass( "error", !bIsValid );
+	return bIsValid;
+};
+
+const fHandleFormValidation = function() {
+	let aChecks = [ fCheckEmail(), fCheckName(), fCheckComment() ],
+		bAllIsOK;
+
+	bAllIsOK = aChecks.reduce( function( bPrevious, bCurrent ) {
+		return bPrevious && bCurrent;
+	}, true );
+
+	if( bAllIsOK ){
+		return true;
+	}
+
+	window.alert( "Veuillez remplir correctement les champs du formulaire!" );
+	return false;
+};
+
 // called when DOM is ready.
 $( function() {
 
@@ -94,11 +93,8 @@ $( function() {
 	setInterval( fHandleTrombino, 1000 );
 
 	// 4. handle form validation
-	$commentForm = $( "form" );
-	$emailInput = $( "#inputEmail" );
-	$nameInput = $( "#inputName" );
-	$commentTextarea = $( "#inputComment" );
-	$commentForm.on( "submit", fHandleFormValidation );
-
-
+	( $commentForm = $( "form" ) ).on( "submit", fHandleFormValidation );
+	( $emailInput = $( "#inputEmail" ) ).on( "blur", fCheckEmail );
+	( $nameInput = $( "#inputName" ) ).on( "blur", fCheckName );
+	( $commentTextarea = $( "#inputComment" ) ).on( "blur", fCheckComment );
 } );
